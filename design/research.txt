@@ -11,3 +11,6 @@ Page Layout
 
 	i/6841
 	f/6841
+
+POST /ajax.php?ajax=-&seq=1&j=tooltip&id=ct-tooltip&ref=6841 HTTP/1.1
+Host: ct.wiimm.de
