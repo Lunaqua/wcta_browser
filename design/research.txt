@@ -1,0 +1,13 @@
+Page Layout
+	initial get request to ct.wiimm.de
+		get cookie + expiry
+
+	post request with cookie to search
+		type=0&search=test+&upd=+Search+
+		returns table of
+
+	post request with cookie to index
+		ajax=ctt&seq=1&j=tooltip&id=ct-tooltip&ref=6841
+
+	i/6841
+	f/6841
