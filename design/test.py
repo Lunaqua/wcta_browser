@@ -29,11 +29,30 @@ class Track:
 
 # Defines the most important information for a track
 
+def findValue(soup, searchStr:str):
+    return soup.find(string=searchStr).find_parent("td").next_sibling
+
+def getTrack(gISoup):
+    tciL = str(findValue(gISoup, "Type, Class and Id:").string).split(" / ")
+    try:
+        pf = str(findValue(gISoup, "Console or prefix:").b.string)
+    except AttributeError:
+        pf = None
+    
+    tnv = findValue(gISoup, "Track name and version:")
+    tn = tnv.b.string
+    ver = str(tn.next_element.string)
+    auL = str(findValue(gISoup, "Created by:").string).split(", ")
+    sha = str(findValue(gISoup, "SHA1 checksum:").tt.string)
+    
+    return Track(id=int(tciL[2]), title=str(gISoup.tr.th.string), type=tciL[0], tclass=tciL[1], name=str(tn), ver=ver, prefix=pf, authors=auL, sha1=sha)
+
 url = "https://ct.wiimm.de/ajax/get-info"
 # get-info is a php script.
 # used over index.php?ajax=ctt, as get-info contains more information.
 # also used over i/[id], as parsing get-info is easier.
-header = {"Content-Type": "application/x-www-form-urlencoded", "Cookie": "CT_WIIMM_DE_SESSION24=3645888-Zv7L5ABJLAJaHtLLQAPJyWBU"}
+header = {"Content-Type": "application/x-www-form-urlencoded", 
+          "Cookie": "CT_WIIMM_DE_SESSION24=3645888-Zv7L5ABJLAJaHtLLQAPJyWBU"}
 # required cookie, should be periodically refreshed.
 
 ref = int(input("Enter a track ref: "))
@@ -47,30 +66,10 @@ htmlsoup = bs(j.loads(req.text)["modal"]["body"], "lxml").table
 # Creates a new bs object from the returned decoded json, under modal, then
 #   body keys, then the table element of the html
 
-# print(htmlsoup.prettify())
-# prints a nice looking variation of the html.
-
-tciL = str(htmlsoup.find(string="Type, Class and Id:").find_parent("td").next_sibling.string).split(" / ")
-
-try:
-    pf = str(htmlsoup.find(string="Console or prefix:").find_parent("td").next_sibling.b.string)
-
-except AttributeError:
-    pf = None
-    
-tnv = htmlsoup.find(string="Track name and version:").find_parent("td").next_sibling
-tn = tnv.b.string
-ver = str(tn.next_element.string)
-
-auL = str(htmlsoup.find(string="Created by:").find_parent("td").next_sibling.string).split(", ")
-
-sha = htmlsoup.find(string="SHA1 checksum:").find_parent("td").next_sibling.tt.string
-    
-newTrack = Track(id=int(tciL[2]), title=str(htmlsoup.tr.th.string), type=tciL[0], tclass=tciL[1], name=str(tn), ver=ver, prefix=pf, authors=auL, sha1=sha)
+newTrack = getTrack(htmlsoup)
 
 print("\033[34;1m{}\033[0m\n".format(newTrack.title))
 print("\033[1mID\033[0m - {:>20}".format(newTrack.id))
 print("\033[1mName\033[0m - {:>40}".format(newTrack.name))
 print("\033[1mVersion\033[0m - {:>37}".format(newTrack.ver))
 print("\033[1mSHA1\033[0m - {:>40}".format(newTrack.sha1))
-
