@@ -46,9 +46,14 @@ header = {"Cookie": "CT_WIIMM_DE_SESSION24=3645888-Zv7L5ABJLAJaHtLLQAPJyWBU"}
 # required cookie, should be periodcally refreshed.
 
 ref = int(input("Enter a track id: "))
-req = r.get(url.format(ref), headers=header)
 
-print(req.status_code)
+try:
+    req = r.get(url.format(ref), headers=header)
+    req.raise_for_status()
+    
+except r.exceptions.HTTPError:
+    print("Invalid ID")
+    exit(1)
 
 json = j.loads(req.text)
 newTrack = getTrack(json)
