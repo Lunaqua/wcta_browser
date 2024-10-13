@@ -22,6 +22,7 @@ except FileNotFoundError:
 
 with open("sha1-reference.json", "r") as jsonF:
     json = j.load(jsonF)
+    jsonF.close()
     
 sha1 = input("Enter a valid track SHA1: ")
 sEntry = json["data"][sha1]
