@@ -1,0 +1,20 @@
+Python
+Use existing code where possible.
+Implement command-line arguments, including STDIN input for piping
+Also include a basic ED-like CLI for interactive use
+
+Should accept both IDs, and SHA1 hashes as STDIN. Also accept search terms for searching.
+Settings can be saved in settings.json if required.
+
+Implement functionality over time.
+
+By default display all information, use comma seperated list of info
+
+Possible command-line args:
+	-I, --interactive			Interactive CLI
+	-i, --id					ID input
+	-s, --SHA1					SHA1 input
+	-S, --search				Search
+	-d, --download				Download
+	-p, --print/--display		Print csl
+	-O, --output				By default, output to [id].txt file
