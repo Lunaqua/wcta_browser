@@ -34,6 +34,16 @@ import simplejson as j
 # Used to manage settings.
 import time
 # Used to provide the time for checking cookie expiration
+from multiprocessing import Process
+
+### TODO
+#
+# Split settings handling into it's own script, with settings verification
+#  + file existance check
+# Move cookie aquisition into search/download script once written.
+#   Set search page layout as part of that.
+# Comment existing code
+# Find a better way of using loadspin/interactive mode.
 
 __VERSION__ = "0.0.1"
 __SETTINGS__ = "settings.json"
@@ -76,14 +86,25 @@ def main():
     if args.interactive:
         print("WCTA Browser v{} ---".format(__VERSION__))
         print("This software is distributed under the MIT License (MIT).")
+        p = Process(target=ls.load)
+        p.start()
         
     sJson = getSettings()
+    if args.interactive:
+        print("S", end="")
+        
     if sJson["cookie"] == "" or sJson["expiry"] < time.time():
         cookie = getCookie()
+        if args.interactive:
+            print("R", end="")
+            
         sJson["cookie"] = cookie
         sJson["expiry"] = time.time() + 2592000
         saveSettings(sJson)
     
+    if args.interactive:
+        print("C", end="")
+        p.kill()
 
 if __name__ == "__main__":
     main()
