@@ -1,5 +1,6 @@
 #!/bin/python3
-# <main.py> - WCTA Browser main script.
+# <main.py> v0.0.1
+# WCTA Browser main script.
 #
 # The MIT License (MIT)
 # 
@@ -24,7 +25,7 @@
 # SOFTWARE.
 #
 
-import loadspin as ls
+# import loadspin as ls
 # Used to display a fancy little loading animation
 import argparse as ap
 # ArgumentParser
@@ -34,12 +35,13 @@ import simplejson as j
 # Used to manage settings.
 import time
 # Used to provide the time for checking cookie expiration
-from multiprocessing import Process
+# from multiprocessing import Process
+# Allows running loadspin in the background
+from pathlib import Path
+# For check settings existance, and other file operations
 
 ### TODO
 #
-# Split settings handling into it's own script, with settings verification
-#  + file existance check
 # Move cookie aquisition into search/download script once written.
 #   Set search page layout as part of that.
 # Comment existing code
@@ -52,16 +54,35 @@ __INDEXURL__ = "https://ct.wiimm.de/index"
 
 def arginit():
     parser = ap.ArgumentParser(
-        prog="WCTA Browser")
+        prog="./main.py",
+        description="WCTA Browser",
+        epilog="This software is distributed under the MIT License (MIT).")
     
-    parser.add_argument("-I", "--interactive", 
+    # parser.add_argument("-I", "--interactive", 
+    #                     action="store_true")
+    
+    parser.add_argument("-V", "--version",
                         action="store_true")
     
     return parser.parse_args()
 
 def getSettings():
+    pJson = Path(__SETTINGS__)
+    if not pJson.is_file():
+        print("S!")
+        exit(1)
+    
     with open(__SETTINGS__, "r") as sFile:
-        return j.load(sFile)
+        sJson = j.load(sFile)
+        
+    if not sJson["magic"] == "wcta":
+        print("S!")
+        exit(1)
+        
+    if not sJson["ver"] == 1:
+        print("S?")
+        
+    return sJson
     
 def saveSettings(json):
     with open(__SETTINGS__, "w") as sFile:
@@ -74,37 +95,35 @@ def getCookie():
         return req.cookies["CT_WIIMM_DE_SESSION24"]
     
     except r.exceptions.HTTPError:
-        print("!")
+        print("H!")
         exit(1)
         
     except r.exceptions.ConnectionError:
-        print("!")
+        print("H!")
         exit(1)
 
 def main():
     args = arginit()
-    if args.interactive:
+    
+    if args.version:
         print("WCTA Browser v{} ---".format(__VERSION__))
         print("This software is distributed under the MIT License (MIT).")
-        p = Process(target=ls.load)
-        p.start()
+        exit(0)
+   
+    # if args.interactive:
+    #     print("WCTA Browser v{} ---".format(__VERSION__))
+    #     print("This software is distributed under the MIT License (MIT).")
+    #     p = Process(target=ls.load)
+    #     p.start()
         
     sJson = getSettings()
-    if args.interactive:
-        print("S", end="")
         
     if sJson["cookie"] == "" or sJson["expiry"] < time.time():
         cookie = getCookie()
-        if args.interactive:
-            print("R", end="")
             
         sJson["cookie"] = cookie
         sJson["expiry"] = time.time() + 2592000
         saveSettings(sJson)
-    
-    if args.interactive:
-        print("C", end="")
-        p.kill()
 
 if __name__ == "__main__":
     main()
