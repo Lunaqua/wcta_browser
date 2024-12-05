@@ -27,10 +27,10 @@
 
 # import loadspin as ls
 # Used to display a fancy little loading animation
+import search
+# Search/Download library
 import argparse as ap
 # ArgumentParser
-import requests as r
-# Used to make http requests
 import simplejson as j
 # Used to manage settings.
 import time
@@ -64,6 +64,9 @@ def arginit():
     parser.add_argument("-V", "--version",
                         action="store_true")
     
+    parser.add_argument("-R", "--refresh-cookie",
+                        action="store_true")
+    
     return parser.parse_args()
 
 def getSettings():
@@ -87,20 +90,6 @@ def getSettings():
 def saveSettings(json):
     with open(__SETTINGS__, "w") as sFile:
         j.dump(json, sFile)
-    
-def getCookie():
-    try:
-        req = r.get(__INDEXURL__)
-        req.raise_for_status()
-        return req.cookies["CT_WIIMM_DE_SESSION24"]
-    
-    except r.exceptions.HTTPError:
-        print("H!")
-        exit(1)
-        
-    except r.exceptions.ConnectionError:
-        print("H!")
-        exit(1)
 
 def main():
     args = arginit()
@@ -118,12 +107,16 @@ def main():
         
     sJson = getSettings()
         
-    if sJson["cookie"] == "" or sJson["expiry"] < time.time():
-        cookie = getCookie()
-            
+    if sJson["cookie"] == "" or sJson["expiry"] < time.time() or args.refresh_cookie:
+        cookie = search.getCookie()
+        if cookie is None:
+            exit(1)
+        
         sJson["cookie"] = cookie
         sJson["expiry"] = time.time() + 2592000
         saveSettings(sJson)
+        
+        search.setSearchLayout(sJson["cookie"])
 
 if __name__ == "__main__":
     main()
