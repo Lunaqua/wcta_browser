@@ -1,4 +1,3 @@
-#!/bin/python3
 # <search.py> v0.0.1
 # WCTA Browser search library
 #
@@ -27,9 +26,12 @@
 
 import requests as r
 # Used to make http requests
+import simplejson as j
+# Used to parse returned json
 
 __INDEXURL__ = "https://ct.wiimm.de/index"
-__APIURL__ = "https://ct.wiimm.de/api/get-track-info"
+__APIURL__ = "https://ct.wiimm.de/api/get-track-info?"
+__DOWNURL__ = "https://ct.wiimm.de/d/{id}"
 
 def getCookie():
     try:
@@ -61,3 +63,29 @@ def setSearchLayout(cookie):
     except r.exceptions.ConnectionError:
         print("H!")
         return None
+    
+def getTrackInfo(isSHA1, identifier, cookie):
+    header = {"Cookie": "CT_WIIMM_DE_SESSION24={}".format(cookie)}
+    
+    if isSHA1:
+        apikey = "sha1="
+        
+    else:
+        apikey = "fileid="
+    
+    url = __APIURL__ + apikey + str(identifier)
+    
+    try:
+        req = r.get(url, headers=header)
+        req.raise_for_status()
+    
+    except r.exceptions.HTTPError:
+        print("I!")
+        exit(1)
+        
+    except r.exceptions.ConnectionError:
+        print("H!")
+        return None
+    
+    json = j.loads(req.text)
+    print(json["file_name"])

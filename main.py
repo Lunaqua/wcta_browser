@@ -42,9 +42,11 @@ from pathlib import Path
 
 ### TODO
 #
-# Move cookie aquisition into search/download script once written.
-#   Set search page layout as part of that.
 # Comment existing code
+# Comment code in search
+# Allow stdin for -i and -s, for piping ids.
+# Add proper info retreval/storage
+# Add cache for trackinfo
 # Find a better way of using loadspin/interactive mode.
 
 __VERSION__ = "0.0.1"
@@ -66,6 +68,10 @@ def arginit():
     
     parser.add_argument("-R", "--refresh-cookie",
                         action="store_true")
+    
+    inputGroup = parser.add_mutually_exclusive_group()
+    inputGroup.add_argument("-i", "--id", type=int)
+    inputGroup.add_argument("-s", "--sha1")
     
     return parser.parse_args()
 
@@ -117,6 +123,12 @@ def main():
         saveSettings(sJson)
         
         search.setSearchLayout(sJson["cookie"])
+    
+    if args.id:
+        search.getTrackInfo(False, args.id, sJson["cookie"])
+    
+    if args.sha1:
+        search.getTrackInfo(True, args.sha1, sJson["cookie"])
 
 if __name__ == "__main__":
     main()
