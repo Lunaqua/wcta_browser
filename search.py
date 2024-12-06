@@ -1,4 +1,4 @@
-# <search.py> v0.0.1
+# <search.py> v1.0.1
 # WCTA Browser search library
 #
 # The MIT License (MIT)
@@ -28,6 +28,8 @@ import requests as r
 # Used to make http requests
 import simplejson as j
 # Used to parse returned json
+import re
+# Used to get filename for download
 
 __INDEXURL__ = "https://ct.wiimm.de/index" # Search page
 __APIURL__ = "https://ct.wiimm.de/api/get-track-info?" # Undocumented API
@@ -107,3 +109,38 @@ def getTrackInfo(isSHA1, identifier, cookie):
     return (json["file_name"])
     # Extract json from returned request.
     # For now just returns name of track.
+    
+def downloadTrack(trackID, cookie):
+    header = {"Cookie": "CT_WIIMM_DE_SESSION24={}".format(cookie)}
+    url = __DOWNURL__.format(id=trackID)
+    
+    try:
+        req = r.get(url, headers=header, stream=True)
+        # Stream for file request.
+        req.raise_for_status()
+    
+    except r.exceptions.HTTPError:
+        print("I!")
+        exit(1)
+        # In this case, you've probably exceeded the allowed
+        # download limit in the last hour.
+        # This is based on IP, not much you can do.
+        
+    except r.exceptions.ConnectionError:
+        print("H!")
+        return None
+    
+    try:
+        cD = req.headers["Content-Disposition"]
+        fn = re.match(r'attachment; filename="([^"]*)"', cD).group(1)
+        # Stupid hack to get the right filename
+        
+    except KeyError:
+        print("I!")
+        exit(1)
+        # ID doesn't exist
+        
+    with open(fn, 'wb') as f:
+        for chunk in req.iter_content(chunk_size=64):
+            f.write(chunk)
+    # code direct from requests documentation lol

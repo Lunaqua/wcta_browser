@@ -1,5 +1,5 @@
 #!/bin/python3
-# <main.py> v0.0.1
+# <wcta_browser.py> v0.0.2
 # WCTA Browser main script.
 #
 # The MIT License (MIT)
@@ -42,13 +42,14 @@ from pathlib import Path
 
 ### TODO
 #
-# Comment code in search
-# Allow stdin for -i and -s, for piping ids.
+# Add help descriptions
+# Allow stdin for -i and -s, for piping ids
 # Add proper info retreval/storage
+# Add error info for max download limit
 # Add cache for trackinfo
-# Find a better way of using loadspin/interactive mode.
+# Find a better way of using loadspin/interactive mode
 
-__VERSION__ = "0.0.1"
+__VERSION__ = "0.0.2"
 __SETTINGS__ = "settings.json"
 __INDEXURL__ = "https://ct.wiimm.de/index"
 # Define basic information
@@ -57,7 +58,7 @@ __INDEXURL__ = "https://ct.wiimm.de/index"
 # arginit() - define command-line arguments.
 def arginit():
     parser = ap.ArgumentParser(
-        prog="./main.py",
+        prog="./wcta_browser.py",
         description="WCTA Browser",
         epilog="This software is distributed under the MIT License (MIT).")
     
@@ -75,6 +76,8 @@ def arginit():
     inputGroup.add_argument("-s", "--sha1")
     # Ensure id and sha1 cannot be used at the same time;
     # Only want to get info about one or the other.
+    
+    parser.add_argument("-d", "--download", type=int)
     
     return parser.parse_args()
     # Return parse_args object, for easy access to arguments.
@@ -155,6 +158,9 @@ def main():
         print(track)
         
     # Gets track info
+    
+    if args.download:
+        search.downloadTrack(args.download, sJson["cookie"])
 
 if __name__ == "__main__":
     main()
