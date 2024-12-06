@@ -1,5 +1,5 @@
 #!/bin/python3
-# <wcta_browser.py> v0.0.3
+# <wcta_browser.py> v0.0.4
 # WCTA Browser main script.
 #
 # The MIT License (MIT)
@@ -44,15 +44,18 @@ from pathlib import Path
 
 ### TODO
 #
-# Add help descriptions
-# Allow stdin for -i and -s, for piping ids
-# Add proper info retreval/storage
+# Implement --colour option
+# Implement colour for display
+# Add colour to settings.json
+# Comment stuff again
+# Implement search
+# Allow stdin for -i and -s, for piping id/sha1
 # Add error info for max download limit
 # Add cache for trackinfo
 # Review code at this point
 # Add GUI at some point
 
-__VERSION__ = "0.0.3"
+__VERSION__ = "0.0.4"
 __SETTINGS__ = "settings.json"
 __INDEXURL__ = "https://ct.wiimm.de/index"
 # Define basic information
@@ -62,25 +65,31 @@ __INDEXURL__ = "https://ct.wiimm.de/index"
 def arginit():
     parser = ap.ArgumentParser(
         prog="./wcta_browser.py",
-        description="WCTA Browser",
+        description="WCTA Browser v{}".format(__VERSION__),
         epilog="This software is distributed under the MIT License (MIT).")
     
     # parser.add_argument("-I", "--interactive", 
     #                     action="store_true")
     
     parser.add_argument("-V", "--version",
-                        action="store_true")
+                        action="store_true",
+                        help="display version information")
     
     parser.add_argument("-R", "--refresh-cookie",
-                        action="store_true")
+                        action="store_true",
+                        help="manually refresh cookie")
     
-    inputGroup = parser.add_mutually_exclusive_group()
-    inputGroup.add_argument("-i", "--id", type=int)
-    inputGroup.add_argument("-s", "--sha1")
+    infoGroup = parser.add_argument_group("track info")
+    inputGroup = infoGroup.add_mutually_exclusive_group()
+    inputGroup.add_argument("-i", "--id", type=int, help="lookup track id")
+    inputGroup.add_argument("-s", "--sha1", help="lookup track sha1")
     # Ensure id and sha1 cannot be used at the same time;
     # Only want to get info about one or the other.
     
-    parser.add_argument("-d", "--download", type=int)
+    parser.add_argument("-d", "--download", metavar="ID", type=int, 
+                        help="download specified id")
+    infoGroup.add_argument("-p", "--print", "--display", metavar="LIST",
+                        help="display track information")
     
     return parser.parse_args()
     # Return parse_args object, for easy access to arguments.
@@ -116,9 +125,17 @@ def saveSettings(json):
     with open(__SETTINGS__, "w") as sFile:
         j.dump(json, sFile)
         
-def displayTrackInfo(trackJson):
+def displayTrackInfo(trackJson, css):
     trk = track.newTrack(trackJson)
-    print(trk)
+    if css:
+        csl = css.split(",")
+        
+    for i in csl:
+        try:
+            print(getattr(trk, i))
+            
+        except AttributeError:
+            print("P?")
 
 def main():
     args = arginit()
@@ -158,11 +175,11 @@ def main():
     
     if args.id:
         trackJson = search.getTrackInfo(False, args.id, sJson["cookie"])
-        displayTrackInfo(trackJson)
+        displayTrackInfo(trackJson, args.print)
     
     if args.sha1:
         trackJson = search.getTrackInfo(True, args.sha1, sJson["cookie"])
-        displayTrackInfo(trackJson)
+        displayTrackInfo(trackJson, args.print)
         
     # Gets track info
     

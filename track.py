@@ -1,4 +1,4 @@
-# <track.py> v1.0.0
+# <track.py> v1.0.2
 # WCTA Browser track class/library
 #
 # The MIT License (MIT)
@@ -38,18 +38,20 @@ class Track:
     multi: bool         # Multiplayer?
     tClass: str         # https://ct.wiimm.de/stat/keywords#class
     name: str           # Track name
+    combName: str # Combined name with prefix
     ver: str            # Track Version
     authors: list[str]  # List of Authors
-    editors: list[str]  # List of Editors
     attrib: list[str]   # List of Attributes
     familyNum: int      # Family ID
     clanNum: int        # Clan ID
     sha1: str           # SHA 1 Hash
     recSlot: int        # Recommended Slot
     musicSlot: float    # Recommended Music Slot (according to wiimm :p)
+    editors: list[str]  # List of Editors
     prefix: str = None  # Primary Prefix (if it exists)
     secPrefix: str = None # Secondary Prefix (if it exists)
     multiID: int = None # If multiplayer, ID
+    
 
 def newTrack(json):
     return Track(json["file_id"],
@@ -60,15 +62,17 @@ def newTrack(json):
                  json["is_d"],
                  json["class"], 
                  json["split_name"]["name"],
+                 json["split_name"]["prefix1"] + " " + json["split_name"]["name"] if json["split_name"]["prefix"] else None,
                  json["split_name"]["version"],
                  json["split_name"]["authors"].split(","),
-                 json["split_name"]["editors"].split(","),
                  json["split_name"]["attributes"].split(","),
                  json["family"], 
                  json["clan"],
                  json["sha1"], 
                  json["slot"],
                  json["music_id"],
+                 json["split_name"]["editors"].split(",") if json["split_name"]["editors"] else None,
                  json["split_name"]["prefix1"],
                  json["split_name"]["prefix2"],
                  json["d_id"])
+                 
