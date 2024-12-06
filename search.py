@@ -29,16 +29,21 @@ import requests as r
 import simplejson as j
 # Used to parse returned json
 
-__INDEXURL__ = "https://ct.wiimm.de/index"
-__APIURL__ = "https://ct.wiimm.de/api/get-track-info?"
-__DOWNURL__ = "https://ct.wiimm.de/d/{id}"
+__INDEXURL__ = "https://ct.wiimm.de/index" # Search page
+__APIURL__ = "https://ct.wiimm.de/api/get-track-info?" # Undocumented API
+__DOWNURL__ = "https://ct.wiimm.de/d/{id}" # Download page
 
+# Set URLs for different tasks.
+
+# getCookie() - Retrieves a fresh cookie from wiimm.de
 def getCookie():
     try:
         req = r.get(__INDEXURL__)
         req.raise_for_status()
         return req.cookies["CT_WIIMM_DE_SESSION24"]
     
+    # Makes a request to the index and then extracts cookie from reply.
+    
     except r.exceptions.HTTPError:
         print("H!")
         return None
@@ -47,14 +52,22 @@ def getCookie():
         print("H!")
         return None
     
+    # Catch errors.
+    
+# setSearchLayout() - Sets the correct search layout, saved server side based
+# on cookie.
 def setSearchLayout(cookie):
     header = {"Cookie": "CT_WIIMM_DE_SESSION24={}".format(cookie)}
     payload = {"ajax": "track1", "ai": "24684738,N-fPdNFv3QsN", "pc": "0", 
                "seq": "3", "j": "Pview", "view": "xname"}
     
+    # Magic payload that sets the correct layout
+    
     try:
         req = r.post(__INDEXURL__, headers=header, data=payload)
         req.raise_for_status()
+        
+        # performs an empty search.
         
     except r.exceptions.HTTPError:
         print("H!")
@@ -64,6 +77,7 @@ def setSearchLayout(cookie):
         print("H!")
         return None
     
+# getTrackInfo() - Gets track information using SHA1 or track ID.
 def getTrackInfo(isSHA1, identifier, cookie):
     header = {"Cookie": "CT_WIIMM_DE_SESSION24={}".format(cookie)}
     
@@ -72,6 +86,8 @@ def getTrackInfo(isSHA1, identifier, cookie):
         
     else:
         apikey = "fileid="
+        
+    # Sets correct API request based on supplied info
     
     url = __APIURL__ + apikey + str(identifier)
     
@@ -88,4 +104,6 @@ def getTrackInfo(isSHA1, identifier, cookie):
         return None
     
     json = j.loads(req.text)
-    print(json["file_name"])
+    return (json["file_name"])
+    # Extract json from returned request.
+    # For now just returns name of track.

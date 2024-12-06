@@ -42,7 +42,6 @@ from pathlib import Path
 
 ### TODO
 #
-# Comment existing code
 # Comment code in search
 # Allow stdin for -i and -s, for piping ids.
 # Add proper info retreval/storage
@@ -54,6 +53,8 @@ __SETTINGS__ = "settings.json"
 __INDEXURL__ = "https://ct.wiimm.de/index"
 # Define basic information
 
+
+# arginit() - define command-line arguments.
 def arginit():
     parser = ap.ArgumentParser(
         prog="./main.py",
@@ -72,14 +73,20 @@ def arginit():
     inputGroup = parser.add_mutually_exclusive_group()
     inputGroup.add_argument("-i", "--id", type=int)
     inputGroup.add_argument("-s", "--sha1")
+    # Ensure id and sha1 cannot be used at the same time;
+    # Only want to get info about one or the other.
     
     return parser.parse_args()
+    # Return parse_args object, for easy access to arguments.
 
+# getSettings() - get settings from file.
 def getSettings():
     pJson = Path(__SETTINGS__)
     if not pJson.is_file():
         print("S!")
         exit(1)
+        
+    # Checks to see if file exists
     
     with open(__SETTINGS__, "r") as sFile:
         sJson = j.load(sFile)
@@ -88,22 +95,31 @@ def getSettings():
         print("S!")
         exit(1)
         
+    # Basic validity check
+        
     if not sJson["ver"] == 1:
         print("S?")
         
+    # Basic version check, ensures file contains all
+    # required arguments.
+        
     return sJson
     
+# saveSettings() - Save settings to file
 def saveSettings(json):
     with open(__SETTINGS__, "w") as sFile:
         j.dump(json, sFile)
 
 def main():
     args = arginit()
+    # Get command line arguments
     
     if args.version:
         print("WCTA Browser v{} ---".format(__VERSION__))
         print("This software is distributed under the MIT License (MIT).")
         exit(0)
+        
+    # Display version information and exit.
    
     # if args.interactive:
     #     print("WCTA Browser v{} ---".format(__VERSION__))
@@ -112,23 +128,33 @@ def main():
     #     p.start()
         
     sJson = getSettings()
+    
+    # Get settings from file
         
     if sJson["cookie"] == "" or sJson["expiry"] < time.time() or args.refresh_cookie:
+        # Check if cookie exists, is out of date or user wants manual refresh.
         cookie = search.getCookie()
         if cookie is None:
             exit(1)
+        # Get new cookie
         
         sJson["cookie"] = cookie
         sJson["expiry"] = time.time() + 2592000
         saveSettings(sJson)
+        # Save to settings file
         
         search.setSearchLayout(sJson["cookie"])
+        # Sets the search page layout.
     
     if args.id:
-        search.getTrackInfo(False, args.id, sJson["cookie"])
+        track = search.getTrackInfo(False, args.id, sJson["cookie"])
+        print(track)
     
     if args.sha1:
-        search.getTrackInfo(True, args.sha1, sJson["cookie"])
+        track = search.getTrackInfo(True, args.sha1, sJson["cookie"])
+        print(track)
+        
+    # Gets track info
 
 if __name__ == "__main__":
     main()
