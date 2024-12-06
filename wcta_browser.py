@@ -88,7 +88,7 @@ def arginit():
     
     parser.add_argument("-d", "--download", metavar="ID", type=int, 
                         help="download specified id")
-    infoGroup.add_argument("-p", "--print", "--display", metavar="LIST",
+    infoGroup.add_argument("-p", "--print", "--display", metavar="ITEM,ITEM",
                         help="display track information")
     
     return parser.parse_args()
