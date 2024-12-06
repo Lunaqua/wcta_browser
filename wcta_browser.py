@@ -1,5 +1,5 @@
 #!/bin/python3
-# <wcta_browser.py> v0.0.2
+# <wcta_browser.py> v0.0.3
 # WCTA Browser main script.
 #
 # The MIT License (MIT)
@@ -29,6 +29,8 @@
 # Used to display a fancy little loading animation
 import search
 # Search/Download library
+import track
+# Track class library
 import argparse as ap
 # ArgumentParser
 import simplejson as j
@@ -47,9 +49,10 @@ from pathlib import Path
 # Add proper info retreval/storage
 # Add error info for max download limit
 # Add cache for trackinfo
-# Find a better way of using loadspin/interactive mode
+# Review code at this point
+# Add GUI at some point
 
-__VERSION__ = "0.0.2"
+__VERSION__ = "0.0.3"
 __SETTINGS__ = "settings.json"
 __INDEXURL__ = "https://ct.wiimm.de/index"
 # Define basic information
@@ -112,6 +115,10 @@ def getSettings():
 def saveSettings(json):
     with open(__SETTINGS__, "w") as sFile:
         j.dump(json, sFile)
+        
+def displayTrackInfo(trackJson):
+    trk = track.newTrack(trackJson)
+    print(trk)
 
 def main():
     args = arginit()
@@ -150,12 +157,12 @@ def main():
         # Sets the search page layout.
     
     if args.id:
-        track = search.getTrackInfo(False, args.id, sJson["cookie"])
-        print(track)
+        trackJson = search.getTrackInfo(False, args.id, sJson["cookie"])
+        displayTrackInfo(trackJson)
     
     if args.sha1:
-        track = search.getTrackInfo(True, args.sha1, sJson["cookie"])
-        print(track)
+        trackJson = search.getTrackInfo(True, args.sha1, sJson["cookie"])
+        displayTrackInfo(trackJson)
         
     # Gets track info
     

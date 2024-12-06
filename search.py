@@ -105,10 +105,8 @@ def getTrackInfo(isSHA1, identifier, cookie):
         print("H!")
         return None
     
-    json = j.loads(req.text)
-    return (json["file_name"])
+    return j.loads(req.text)
     # Extract json from returned request.
-    # For now just returns name of track.
     
 def downloadTrack(trackID, cookie):
     header = {"Cookie": "CT_WIIMM_DE_SESSION24={}".format(cookie)}
