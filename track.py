@@ -1,4 +1,4 @@
-# <track.py> v1.0.2
+# <track.py> v1.0.3
 # WCTA Browser track class/library
 #
 # The MIT License (MIT)
@@ -38,7 +38,7 @@ class Track:
     multi: bool         # Multiplayer?
     tClass: str         # https://ct.wiimm.de/stat/keywords#class
     name: str           # Track name
-    combName: str # Combined name with prefix
+    combName: str       # Combined name with prefix
     ver: str            # Track Version
     authors: list[str]  # List of Authors
     attrib: list[str]   # List of Attributes
@@ -54,6 +54,13 @@ class Track:
     
 
 def newTrack(json):
+    if json["split_name"]["prefix2"]:
+        combName = json["split_name"]["prefix1"] + " " + json["split_name"]["prefix2"] + " " + json["split_name"]["name"]
+    elif json["split_name"]["prefix1"]:
+        combName = json["split_name"]["prefix1"] + " " + json["split_name"]["name"]
+    else:
+        combName = None
+    
     return Track(json["file_id"],
                  json["category"]["id"],
                  json["category"]["info"],
@@ -62,7 +69,7 @@ def newTrack(json):
                  json["is_d"],
                  json["class"], 
                  json["split_name"]["name"],
-                 json["split_name"]["prefix1"] + " " + json["split_name"]["name"] if json["split_name"]["prefix"] else None,
+                 combName,
                  json["split_name"]["version"],
                  json["split_name"]["authors"].split(","),
                  json["split_name"]["attributes"].split(","),

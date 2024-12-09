@@ -1,5 +1,5 @@
 #!/bin/python3
-# <wcta_browser.py> v0.0.4
+# <wcta_browser.py> v0.0.5
 # WCTA Browser main script.
 #
 # The MIT License (MIT)
@@ -55,7 +55,7 @@ from pathlib import Path
 # Review code at this point
 # Add GUI at some point
 
-__VERSION__ = "0.0.4"
+__VERSION__ = "0.0.5"
 __SETTINGS__ = "settings.json"
 __INDEXURL__ = "https://ct.wiimm.de/index"
 # Define basic information
@@ -78,6 +78,10 @@ def arginit():
     parser.add_argument("-R", "--refresh-cookie",
                         action="store_true",
                         help="manually refresh cookie")
+    
+    parser.add_argument("-C", "--colour",
+                        action="store_true",
+                        help="enable colour output")
     
     infoGroup = parser.add_argument_group("track info")
     inputGroup = infoGroup.add_mutually_exclusive_group()
@@ -125,17 +129,39 @@ def saveSettings(json):
     with open(__SETTINGS__, "w") as sFile:
         j.dump(json, sFile)
         
-def displayTrackInfo(trackJson, css):
+def displayTrackInfo(trackJson, css, colour):
     trk = track.newTrack(trackJson)
     if css:
         csl = css.split(",")
         
-    for i in csl:
-        try:
-            print(getattr(trk, i))
-            
-        except AttributeError:
-            print("P?")
+    if colour:
+        for i in csl:
+            try:
+                match i:
+                    case "combName" if getattr(trk, "secPrefix"):
+                        txt = getattr(trk,i).split(" ",maxsplit=2)
+                        print("\033[1m{} {}\033[0m {}".format(txt[0], txt[1], txt[2]))
+                    
+                    case "combName" if getattr(trk, "prefix"):
+                        txt = getattr(trk,i).split(" ",maxsplit=1)
+                        print("\033[1m{}\033[0m {}".format(txt[0], txt[1]))
+                    
+                    case "title":
+                        print("\033[34;1m{}\033[0m".format(getattr(trk, i)))
+                    
+                    case _:
+                        print(getattr(trk, i))
+                
+            except AttributeError:
+                print("P?")
+    
+    else:
+        for i in csl:
+            try:
+                print(getattr(trk, i))
+                
+            except AttributeError:
+                print("P?")
 
 def main():
     args = arginit()
@@ -175,11 +201,11 @@ def main():
     
     if args.id:
         trackJson = search.getTrackInfo(False, args.id, sJson["cookie"])
-        displayTrackInfo(trackJson, args.print)
+        displayTrackInfo(trackJson, args.print, args.colour)
     
     if args.sha1:
         trackJson = search.getTrackInfo(True, args.sha1, sJson["cookie"])
-        displayTrackInfo(trackJson, args.print)
+        displayTrackInfo(trackJson, args.print, args.colour)
         
     # Gets track info
     
