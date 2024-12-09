@@ -59,7 +59,7 @@ def newTrack(json):
     elif json["split_name"]["prefix1"]:
         combName = json["split_name"]["prefix1"] + " " + json["split_name"]["name"]
     else:
-        combName = None
+        combName = json["split_name"]["name"]
     
     return Track(json["file_id"],
                  json["category"]["id"],

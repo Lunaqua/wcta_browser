@@ -1,5 +1,5 @@
 #!/bin/python3
-# <wcta_browser.py> v0.0.5
+# <wcta_browser.py> v0.0.6
 # WCTA Browser main script.
 #
 # The MIT License (MIT)
@@ -44,8 +44,6 @@ from pathlib import Path
 
 ### TODO
 #
-# Add colour to settings.json
-# Comment stuff again
 # Implement search
 # Allow stdin for -i and -s, for piping id/sha1
 # Add error info for max download limit
@@ -53,7 +51,7 @@ from pathlib import Path
 # Review code at this point
 # Add GUI at some point
 
-__VERSION__ = "0.0.5"
+__VERSION__ = "0.0.6"
 __SETTINGS__ = "settings.json"
 __INDEXURL__ = "https://ct.wiimm.de/index"
 # Define basic information
@@ -92,6 +90,9 @@ def arginit():
                         help="download specified id")
     infoGroup.add_argument("-p", "--print", "--display", metavar="ITEM,ITEM",
                         help="display track information")
+    infoGroup.add_argument("-a", "--all",
+                           action="store_true",
+                           help="display all information (ignores -p)")
     
     return parser.parse_args()
     # Return parse_args object, for easy access to arguments.
@@ -127,11 +128,20 @@ def saveSettings(json):
     with open(__SETTINGS__, "w") as sFile:
         j.dump(json, sFile)
         
-def displayTrackInfo(trackJson, css, colour):
+# displayTrackInfo() - Display track information
+def displayTrackInfo(trackJson, css, colour, printAll):
     trk = track.newTrack(trackJson)
+    # Convert json file into class containing values
+    
     if css:
         csl = css.split(",")
+        # Split user input into keys
         
+    # Check for print all option, and if enabled display all
+    if printAll:
+        csl = trk.__dict__
+        
+    # Detects whether to use colour
     if colour:
         for i in csl:
             try:
@@ -152,8 +162,10 @@ def displayTrackInfo(trackJson, css, colour):
                 
             except AttributeError:
                 print("P?")
+                # Ensures program does not crash on unknown attrib
     
     else:
+        # Simple print for without colour
         for i in csl:
             try:
                 print(getattr(trk, i))
@@ -199,13 +211,16 @@ def main():
     
     if args.id:
         trackJson = search.getTrackInfo(False, args.id, sJson["cookie"])
+        # Gets json with track info
         colour = True if args.colour or sJson["colour"] else False
-        displayTrackInfo(trackJson, args.print, colour)
+        # Checks for colour being set either way
+        displayTrackInfo(trackJson, args.print, args.all, colour)
+        # Displays track info 
     
     if args.sha1:
         trackJson = search.getTrackInfo(True, args.sha1, sJson["cookie"])
         colour = True if args.colour or sJson["colour"] else False
-        displayTrackInfo(trackJson, args.print, colour)
+        displayTrackInfo(trackJson, args.print, args.all, colour)
         
     # Gets track info
     
