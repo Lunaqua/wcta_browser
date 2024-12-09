@@ -1,4 +1,4 @@
-# <track.py> v1.0.3
+# <track.py> v1.2.1
 # WCTA Browser track class/library
 #
 # The MIT License (MIT)
@@ -26,6 +26,8 @@
 
 from dataclasses import dataclass as dc
 # Used to create a class for holding track info
+import time
+# Converts unix time to actual time
 
 @dc
 class Track:
@@ -47,10 +49,18 @@ class Track:
     sha1: str           # SHA 1 Hash
     recSlot: int        # Recommended Slot
     musicSlot: float    # Recommended Music Slot (according to wiimm :p)
+    badSlot: list[str]  # Slots that don't work
     editors: list[str]  # List of Editors
+    date: str           # Date and Time of creation
+    rawdate: int        # Date in unix time
+    lapCounters: int    # Number of lap counters
+    laps: int           # Number of laps
+    speed: int          # Speed Modifier
+    wikiPageID: int     # Custom Track Wiiki Page ID
     prefix: str = None  # Primary Prefix (if it exists)
     secPrefix: str = None # Secondary Prefix (if it exists)
     multiID: int = None # If multiplayer, ID
+    extra: str = None   # extra info?
     
 
 def newTrack(json):
@@ -78,8 +88,16 @@ def newTrack(json):
                  json["sha1"], 
                  json["slot"],
                  json["music_id"],
+                 json["slot_info"].split(","),
                  json["split_name"]["editors"].split(",") if json["split_name"]["editors"] else None,
+                 time.ctime(json["szs_time"]),
+                 json["szs_time"],
+                 json["ckpt_lap_counters"],
+                 json["stgi_laps"],
+                 json["stgi_speed"],
+                 json["ctwiki_pageid"],
                  json["split_name"]["prefix1"],
                  json["split_name"]["prefix2"],
-                 json["d_id"])
+                 json["d_id"],
+                 json["split_name"]["extra"])
                  
