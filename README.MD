@@ -3,10 +3,10 @@
 
 ### About
 
-[https://ct.wiimm.de](Wiimm's CT Archive) is an archive of almost every custom
+[Wiimm's CT Archive](https://ct.wiimm.de) is an archive of almost every custom
 track available for Mario Kart Wii, however, its web interface can be 
 cumbersome to browse, and its often easier to use the 
-[https://wiki.tockdom.com](Custom Track Wiiki).
+[Custom Track Wiiki](https://wiki.tockdom.com).
 
 This project is intended to make browsing the archive easier, and eventually 
 introduce extra features only possible on a local browser.
@@ -19,4 +19,4 @@ early on, and therefore it serves as the best current option.
 Currently the project is at a basic stage, featuring a python based script
 allowing the retrieval of track-info and track downloading.
 
-It is best combined with [https://szs.wiimm.de](WSZST) and [https://wit.wiimm.de](WIT). 
+It is best combined with [WSZST](https://szs.wiimm.de) and [WIT](https://wit.wiimm.de). 
