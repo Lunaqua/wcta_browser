@@ -44,8 +44,6 @@ from pathlib import Path
 
 ### TODO
 #
-# Implement --colour option
-# Implement colour for display
 # Add colour to settings.json
 # Comment stuff again
 # Implement search
@@ -116,7 +114,7 @@ def getSettings():
         
     # Basic validity check
         
-    if not sJson["ver"] == 1:
+    if not sJson["ver"] == 2:
         print("S?")
         
     # Basic version check, ensures file contains all
@@ -201,11 +199,13 @@ def main():
     
     if args.id:
         trackJson = search.getTrackInfo(False, args.id, sJson["cookie"])
-        displayTrackInfo(trackJson, args.print, args.colour)
+        colour = True if args.colour or sJson["colour"] else False
+        displayTrackInfo(trackJson, args.print, colour)
     
     if args.sha1:
         trackJson = search.getTrackInfo(True, args.sha1, sJson["cookie"])
-        displayTrackInfo(trackJson, args.print, args.colour)
+        colour = True if args.colour or sJson["colour"] else False
+        displayTrackInfo(trackJson, args.print, colour)
         
     # Gets track info
     
