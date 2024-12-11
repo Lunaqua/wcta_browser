@@ -1,5 +1,5 @@
 #!/bin/python3
-# <wcta_browser.py> v0.0.6
+# <wcta_browser.py> v1.0.0
 # WCTA Browser main script.
 #
 # The MIT License (MIT)
@@ -44,9 +44,12 @@ from pathlib import Path
 
 ### TODO
 #
-# Implement search
+# Image download
 # Allow stdin for -i and -s, for piping id/sha1
+# Add options to print different info for search
+# Allow search for tracks/arenas only
 # Add error info for max download limit
+# Add sixel output for images
 # Add cache for trackinfo
 # Review code at this point
 # Add GUI at some point
@@ -82,7 +85,7 @@ def arginit():
     infoGroup = parser.add_argument_group("track info")
     inputGroup = infoGroup.add_mutually_exclusive_group()
     inputGroup.add_argument("-i", "--id", type=int, help="lookup track id")
-    inputGroup.add_argument("-s", "--sha1", help="lookup track sha1")
+    inputGroup.add_argument("-S", "--sha1", help="lookup track sha1")
     # Ensure id and sha1 cannot be used at the same time;
     # Only want to get info about one or the other.
     
@@ -93,6 +96,12 @@ def arginit():
     infoGroup.add_argument("-a", "--all",
                            action="store_true",
                            help="display all information (ignores -p)")
+    
+    searchGroup = parser.add_argument_group("search info")
+    searchGroup.add_argument("-s", "--search",
+                             help="search for a track")
+    searchGroup.add_argument("-n", "--num", "--results", type=int,
+                             help="print a specific number of results.")
     
     return parser.parse_args()
     # Return parse_args object, for easy access to arguments.
@@ -138,8 +147,11 @@ def displayTrackInfo(trackJson, css, colour, printAll):
         # Split user input into keys
         
     # Check for print all option, and if enabled display all
-    if printAll:
+    elif printAll:
         csl = trk.__dict__
+        
+    else:
+        csl = []
         
     # Detects whether to use colour
     if colour:
@@ -208,6 +220,17 @@ def main():
         
         search.setSearchLayout(sJson["cookie"])
         # Sets the search page layout.
+        
+    if args.search:
+        resNum = args.num if args.num else 10
+        tracks = search.doSearch(sJson["cookie"], args.search, resNum)
+        for i in tracks:
+            if i is None:
+                continue
+            
+            info = i.find_all("td")
+            print("{}: ".format(info[2].string), end="")
+            print(info[9].contents[0])
     
     if args.id:
         trackJson = search.getTrackInfo(False, args.id, sJson["cookie"])

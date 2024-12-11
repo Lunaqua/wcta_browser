@@ -1,4 +1,4 @@
-# <search.py> v1.0.1
+# <search.py> v1.1.1
 # WCTA Browser search library
 #
 # The MIT License (MIT)
@@ -30,6 +30,8 @@ import simplejson as j
 # Used to parse returned json
 import re
 # Used to get filename for download
+from bs4 import BeautifulSoup as bs
+# Used to decode the html table returned by the site
 
 __INDEXURL__ = "https://ct.wiimm.de/index" # Search page
 __APIURL__ = "https://ct.wiimm.de/api/get-track-info?" # Undocumented API
@@ -78,6 +80,20 @@ def setSearchLayout(cookie):
     except r.exceptions.ConnectionError:
         print("H!")
         return None
+    
+def doSearch(cookie, request, resNum):
+    header = {"Cookie": "CT_WIIMM_DE_SESSION24={}".format(cookie)}
+    payload = {"type": "0", "search": request, "upd": "+Search+"}
+    
+    html = r.post(__INDEXURL__, headers=header, data=payload).text
+    htmlsoup = bs(html, "lxml")
+    
+    table = htmlsoup.find(id="p1-tbody")
+    tracks = []
+    for i in range(resNum):
+        tracks.append(table.find(id="p1-{}-0".format(i)))
+        
+    return tracks
     
 # getTrackInfo() - Gets track information using SHA1 or track ID.
 def getTrackInfo(isSHA1, identifier, cookie):
