@@ -1,5 +1,5 @@
 #!/bin/python3
-# <wcta_browser.py> v1.0.0
+# <wcta_browser.py> v1.0.1
 # WCTA Browser main script.
 #
 # The MIT License (MIT)
@@ -52,6 +52,8 @@ from pathlib import Path
 # Add sixel output for images
 # Add cache for trackinfo
 # Review code at this point
+#
+# Add distribution support at some point
 # Add GUI at some point
 
 __VERSION__ = "0.0.6"
@@ -237,13 +239,13 @@ def main():
         # Gets json with track info
         colour = True if args.colour or sJson["colour"] else False
         # Checks for colour being set either way
-        displayTrackInfo(trackJson, args.print, args.all, colour)
+        displayTrackInfo(trackJson, args.print, colour, args.all)
         # Displays track info 
     
     if args.sha1:
         trackJson = search.getTrackInfo(True, args.sha1, sJson["cookie"])
         colour = True if args.colour or sJson["colour"] else False
-        displayTrackInfo(trackJson, args.print, args.all, colour)
+        displayTrackInfo(trackJson, args.print, colour, args.all)
         
     # Gets track info
     
