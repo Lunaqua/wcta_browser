@@ -56,7 +56,7 @@ from pathlib import Path
 # Add distribution support at some point
 # Add GUI at some point
 
-__VERSION__ = "0.0.6"
+__VERSION__ = "1.0.1"
 __SETTINGS__ = "settings.json"
 __INDEXURL__ = "https://ct.wiimm.de/index"
 # Define basic information
