@@ -56,8 +56,9 @@ from pathlib import Path
 # Add distribution support at some point
 # Add support for SZS Library
 # Add GUI at some point
+# Add translation support at some point
 
-__VERSION__ = "1.0.1"
+__VERSION__ = "1.0.2"
 __SETTINGS__ = "settings.json"
 __INDEXURL__ = "https://ct.wiimm.de/index"
 # Define basic information
