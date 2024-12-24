@@ -1,5 +1,5 @@
 #!/bin/python3
-# <wcta_browser.py> v1.0.1
+# <wcta_browser.py> v1.0.2
 # WCTA Browser main script.
 #
 # The MIT License (MIT)
@@ -44,7 +44,6 @@ from pathlib import Path
 
 ### TODO
 #
-# Image download
 # Allow stdin for -i and -s, for piping id/sha1
 # Add options to print different info for search
 # Allow search for tracks/arenas only
@@ -52,8 +51,10 @@ from pathlib import Path
 # Add sixel output for images
 # Add cache for trackinfo
 # Review code at this point
+# Download to stdout rather than file
 #
 # Add distribution support at some point
+# Add support for SZS Library
 # Add GUI at some point
 
 __VERSION__ = "1.0.1"
@@ -88,6 +89,7 @@ def arginit():
     inputGroup = infoGroup.add_mutually_exclusive_group()
     inputGroup.add_argument("-i", "--id", type=int, help="lookup track id")
     inputGroup.add_argument("-S", "--sha1", help="lookup track sha1")
+    
     # Ensure id and sha1 cannot be used at the same time;
     # Only want to get info about one or the other.
     
@@ -98,6 +100,8 @@ def arginit():
     infoGroup.add_argument("-a", "--all",
                            action="store_true",
                            help="display all information (ignores -p)")
+    infoGroup.add_argument("-I", "--img", action="store_true",
+                            help="download track image")
     
     searchGroup = parser.add_argument_group("search info")
     searchGroup.add_argument("-s", "--search",
@@ -241,6 +245,7 @@ def main():
         # Checks for colour being set either way
         displayTrackInfo(trackJson, args.print, colour, args.all)
         # Displays track info 
+        search.downloadImage(args.id, sJson["cookie"])
     
     if args.sha1:
         trackJson = search.getTrackInfo(True, args.sha1, sJson["cookie"])

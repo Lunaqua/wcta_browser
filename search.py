@@ -1,4 +1,4 @@
-# <search.py> v1.1.1
+# <search.py> v1.1.2
 # WCTA Browser search library
 #
 # The MIT License (MIT)
@@ -36,6 +36,7 @@ from bs4 import BeautifulSoup as bs
 __INDEXURL__ = "https://ct.wiimm.de/index" # Search page
 __APIURL__ = "https://ct.wiimm.de/api/get-track-info?" # Undocumented API
 __DOWNURL__ = "https://ct.wiimm.de/d/{id}" # Download page
+__IMGURL__ = "https://ct.wiimm.de/img/start/{id}" # Image URL
 
 # Set URLs for different tasks.
 
@@ -158,3 +159,27 @@ def downloadTrack(trackID, cookie):
         for chunk in req.iter_content(chunk_size=64):
             f.write(chunk)
     # code direct from requests documentation lol
+
+def downloadImage(trackID, cookie):
+    header = {"Cookie": "CT_WIIMM_DE_SESSION24={}".format(cookie)}
+    url = __IMGURL__.format(id=trackID)
+    
+    try:
+        req = r.get(url, headers=header, stream=True)
+        # Stream for file request.
+        req.raise_for_status()
+    
+    except r.exceptions.HTTPError:
+        print("I!")
+        exit(1)
+        # In this case, you've probably exceeded the allowed
+        # download limit in the last hour.
+        # This is based on IP, not much you can do.
+        
+    except r.exceptions.ConnectionError:
+        print("H!")
+        return None
+    
+    with open(str(trackID)+".png", "wb") as f:
+        for chunk in req.iter_content(chunk_size=64):
+            f.write(chunk)
