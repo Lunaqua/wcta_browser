@@ -1,5 +1,5 @@
 #!/bin/python3
-# <wcta_browser.py> v1.0.2
+# <wcta_browser.py> v1.0.3
 # WCTA Browser main script.
 #
 # The MIT License (MIT)
@@ -58,7 +58,7 @@ from pathlib import Path
 # Add GUI at some point
 # Add translation support at some point
 
-__VERSION__ = "1.0.2"
+__VERSION__ = "1.0.3"
 __SETTINGS__ = "settings.json"
 __INDEXURL__ = "https://ct.wiimm.de/index"
 # Define basic information
@@ -246,7 +246,8 @@ def main():
         # Checks for colour being set either way
         displayTrackInfo(trackJson, args.print, colour, args.all)
         # Displays track info 
-        search.downloadImage(args.id, sJson["cookie"])
+        if args.img:
+            search.downloadImage(args.id, sJson["cookie"])
     
     if args.sha1:
         trackJson = search.getTrackInfo(True, args.sha1, sJson["cookie"])
